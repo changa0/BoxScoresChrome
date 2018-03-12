@@ -1,0 +1,30 @@
+<!doctype <!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>SlimScore NBA Scores</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" type="text/css" media="screen" href="page.css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
+</head>
+<body>
+    <h2>Box Scores</h2>
+    <p>Get a box score from today's games</p>
+    <form name="games">
+        <select id="dropdown"></select>
+    </form>
+    <div class="buttons" >
+<!--        <button type="button" class="directional" onclick="arrowNav('l')">&laquo;</button>-->
+        <button type="button" id="update">Update scores</button>
+<!--        <button type="button" class="directional" onclick="arrowNav('r')">&raquo;</button> -->
+    </div>
+    <div id="placeholder"></div>
+
+    <footer>
+        Copyright &copy; 2018 AC. All rights reserved.
+        <br>
+        Data retrieved from stats.nba.com
+    </footer>
+    <script src="page.js"></script>
+</body>
+</html>
