@@ -1,14 +1,15 @@
 "use strict";
 const SCOREBOARD_URL = "https://stats.nba.com/stats/scoreboard/?GameDate=";
 const SCOREBOARD_URL_SUFFIX = "&LeagueID=00&DayOffset=0&noCache=";
-const GAME_DATA_URL_PRE = "https://data.nba.com/data/v2015/json/mobile_teams/nba/";
-const GAME_DATA_URL_PART = "/scores/gamedetail/";
-const GAME_DATA_URL_SUFFIX = "_gamedetail.json";
+const GAME_URL_PRE = "https://data.nba.com/data/v2015/json/mobile_teams/nba/";
+const GAME_URL_PART = "/scores/gamedetail/";
+const GAME_URL_SUFFIX = "_gamedetail.json";
 
 var scoreboard;
 var games;
 var lineScore;
 var lastMeeting;
+var gameJSON;
 
 document.getElementById("dropdown").onchange = updateScore;
 document.getElementById("update").onclick = function() {getScoreboardJSON("refresh")};
@@ -33,13 +34,13 @@ function getDate() {
     return [formatted, noCache];
 }
 
-function genUrl(type) {
+function genUrl(type, season, gameId) {
     var url = "";
     if ( type === "scoreboard" ){
         var date = getDate();
         url = SCOREBOARD_URL + date[0] + SCOREBOARD_URL_SUFFIX + date[1];
     } else if (type === "game") {
-
+        url = GAME_URL_PRE + season + GAME_URL_PART + gameId + GAME_URL_SUFFIX;
     }
     return url;
 }
@@ -108,6 +109,19 @@ function clearDropdown() {
     if( document.getElementById("dropdown").hasChildNodes() ) document.getElementById("dropdown").innerText = "";
 }
 
+function getGameJSON(gameId) {
+    var season = games[0][8];
+    var url = genUrl("game", season, gameId);
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", url);
+    xhr.responseType = "json";
+    xhr.onload = function () {
+        gameJSON = xhr.response;
+        genBox();
+    }
+    xhr.send();
+}
+
 /**
  *  Updates scores for current game by removing the old table and then adding updated.
  */
@@ -171,6 +185,12 @@ function updateScore() {
     toUpdate.appendChild(recordsHeader);
     toUpdate.appendChild(records);
     placeholder.appendChild(toUpdate);
+
+    getGameJSON( games[selected][2] );
+}
+
+function genBox() {
+
 }
 
 function genTeamInfo(away, home) {
