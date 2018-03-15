@@ -108,7 +108,7 @@ function clearDropdown() {
 }
 
 /**
- * 
+ *
  * @param {string} gameId string containing gameID for selected game
  */
 function getGameJSON(gameId) {
@@ -125,7 +125,7 @@ function getGameJSON(gameId) {
 }
 
 /**
- * Updates scores for current game by removing the old table, managing games that 
+ * Updates scores for current game by removing the old table, managing games that
  * have yet to start, and then calls for the JSON data belonging to a specific game.
  */
 function updateScore() {
@@ -189,6 +189,11 @@ function formatInfo() {
     var quarterTable = genQuarterTable( awayStats, homeStats );
     toUpdate.appendChild(quarterTable);
 
+    var awayBox = genBox(awayStats, awayName);
+    var homeBox = genBox(homeStats, homeName)
+    toUpdate.appendChild(awayBox);
+    toUpdate.appendChild(homeBox);
+
     var recordsHeader = document.createElement("h3");
     text = document.createTextNode("Team Records");
     recordsHeader.appendChild(text);
@@ -198,10 +203,6 @@ function formatInfo() {
     toUpdate.appendChild(recordsHeader);
     toUpdate.appendChild(records);
     placeholder.appendChild(toUpdate);
-}
-
-function genBox() {
-
 }
 
 function genTeamInfo(away, home) {
@@ -285,6 +286,38 @@ function quarterTableHelper(team, quarter) {
     return row;
 }
 
+function genBox(team , teamName) {
+    var boxData = team.pstsg; //player stats
+    var div = document.createElement("div");
+    div.setAttribute("class", "box-area");
+    var label = document.createElement("h2");
+    label.appendChild( document.createTextNode(teamName) );
+    div.appendChild(label);
+
+    var tbl = document.createElement("table");
+    var tblHead = document.createElement("thead");
+    var tblBody = document.createElement("tbody");
+    var headData = [ "Player", "Min", "FG", "3Pt", "FT", "Pts", "Reb", "OReb", "DReb", "Ast", "Blk", "Stl", "TO", "PF" ];
+    var header = rowHelper(headData, "th");
+    tblHead.appendChild(header);
+
+    for (var p of boxData) {
+        var name = p.fn + " " + p.ln;
+        var time = p.min + ":" + (function(s) {if (s < 10) s = "0" + s; return s;})(p.sec);
+        var fg = p.fgm + "-" + p.fga;
+        var tp = p.tpm + "-" + p.tpa;
+        var ft = p.ftm + "-" + p.fta;
+        var rowData = [ name, time, fg, tp, ft, p.pts, p.reb, p.oreb, p.dreb, p.ast, p.blk, p.stl, p.tov, p.pf];
+        var row = rowHelper(rowData, "td");
+        tbl.appendChild(row);
+    }
+
+    tbl.appendChild(tblHead);
+    tbl.setAttribute("class", "box-table");
+    div.appendChild(tbl);
+    return div;
+}
+
 /**
  * generate team records info, fix if server returns data in opposite order
  * @param {number} game - index for selected game
@@ -296,16 +329,16 @@ function genRecords(game, fix) {
     var team2 = [ lineScore[ 2*game+1 ][4], "(" + lineScore[ 2*game+1 ][6] + ")" ];
     if ( fix === 1 ) {
         var rowData = team2;
-        var row = rowHelper(rowData);
+        var row = rowHelper(rowData, "td");
         table.appendChild(row);
         rowData = team1;
     } else {
         var rowData = team1;
-        var row = rowHelper(rowData);
+        var row = rowHelper(rowData, "td");
         table.appendChild(row);
         rowData = team2;
     }
-    row = rowHelper(rowData);
+    row = rowHelper(rowData, "td");
     table.appendChild(row);
     return table;
 }
@@ -313,12 +346,13 @@ function genRecords(game, fix) {
 /**
  * use for creating table rows
  * @param {array} rowData - an array of strings for table data cells
+ * @param {string} cellType - specify either th or td
  */
-function rowHelper(rowData) {
+function rowHelper(rowData, cellType) {
     var row = document.createElement("tr");
 
     for (var text of rowData) {
-        var cell = document.createElement("td");
+        var cell = document.createElement(cellType);
         var cellText = document.createTextNode(text);
         cell.appendChild(cellText);
         row.appendChild(cell);
