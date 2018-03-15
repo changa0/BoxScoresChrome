@@ -16,7 +16,6 @@ document.getElementById("update").onclick = function() {getScoreboardJSON("refre
 
 getScoreboardJSON("new");
 
-
 /**
  * returns today's date
 */
@@ -87,8 +86,6 @@ function populateDropdown() {
     for (var game of lastMeeting) {
         var option = document.createElement("option");
         var gameIndex = lastMeeting.indexOf(game);
-        //var awayName = game[9] + " " + game[10];
-        //var homeName = game[4] + " " + game[5];
         var awayAbbrev = game[11];
         var homeAbbrev = game[6];
         var gameStatus = games[gameIndex][4]; // shows time or final
@@ -116,28 +113,30 @@ function getGameJSON(gameId) {
     xhr.open("GET", url);
     xhr.responseType = "json";
     xhr.onload = function () {
-        gameJSON = xhr.response;
-        genBox();
+        gameJSON = xhr.response.g; // g for JSON key
+        formatInfo();
     }
     xhr.send();
 }
 
 /**
- *  Updates scores for current game by removing the old table and then adding updated.
+ * Updates scores for current game by removing the old table, managing games that 
+ * have yet to start, and then calls for the JSON data belonging to a specific game.
  */
 function updateScore() {
     var dropdown = document.getElementById("dropdown");
     if ( dropdown.value == "" ) dropdown.value = 0; // edge case when going from day w/ no games to day w/ games
     var selected = dropdown.value;
-    var game = lastMeeting[selected];
-    var awayName = game[9] + " " + game[10];
-    var homeName = game[4] + " " + game[5];
+    var gameId = games[selected][2];
 
     // delete info if existing
     if ( document.getElementById("info") ) deleteInfo();
 
     // check if game hasn't started yet
-    if ( games[selected][9] == 0 ) {
+    if ( games[selected][9] === 0 ) {
+        var game = lastMeeting[selected];
+        var awayName = game[9] + " " + game[10];
+        var homeName = game[4] + " " + game[5];
         dropdown.setAttribute("class", "inactive");
         inactiveGame(awayName, homeName, selected);
         return;
@@ -145,11 +144,16 @@ function updateScore() {
         if ( dropdown.getAttribute("class") ) dropdown.setAttribute("class","active");
     }
 
+    getGameJSON(gameId);
+}
+
+function formatInfo() {
+    var selected = document.getElementById("dropdown").value;
     var placeholder = document.getElementById("placeholder");
+    var awayName = gameJSON.vls.tc + " " + gameJSON.vls.tn;
+    var homeName = gameJSON.hls.tc + " " + gameJSON.hls.tn;
     var awayLineScore = lineScore[ 2*selected ];
     var homeLineScore = lineScore[ 2*selected+1 ];
-    var awayScore = awayLineScore[21];
-    var homeScore = homeLineScore[21];
 
     //create div to contain info elements
     var toUpdate = document.createElement("div");
@@ -159,16 +163,16 @@ function updateScore() {
     var teamsInfo = genTeamInfo(awayName, homeName);
     toUpdate.appendChild(teamsInfo);
 
-    var scores = formatScoreText(awayScore, homeScore);
+    var scores = formatScoreText( gameJSON.lpla.vs, gameJSON.lpla.hs );
     toUpdate.appendChild(scores[0]);
     toUpdate.appendChild(scores[1]);
     toUpdate.appendChild(scores[2]);
 
     var period = document.createElement("h2");
-    if ( games[selected][4] == "Final" ) {
+    if ( gameJSON.stt === "Final" ) {
         text = document.createTextNode("Final");
     } else {
-        text = document.createTextNode( "Q" + games[selected][9] + "\xa0\xa0" + games[selected][10] );
+        text = document.createTextNode(gameJSON.stt + "\xa0\xa0" + gameJSON.cl);
     }
     period.appendChild(text);
     toUpdate.appendChild(period);
@@ -185,8 +189,6 @@ function updateScore() {
     toUpdate.appendChild(recordsHeader);
     toUpdate.appendChild(records);
     placeholder.appendChild(toUpdate);
-
-    getGameJSON( games[selected][2] );
 }
 
 function genBox() {
