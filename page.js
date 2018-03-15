@@ -80,6 +80,7 @@ function checkNoGames() {
     }
     return false;
 }
+
 function populateDropdown() {
     var dropdown = document.getElementById("dropdown");
 
@@ -106,6 +107,10 @@ function clearDropdown() {
     if( document.getElementById("dropdown").hasChildNodes() ) document.getElementById("dropdown").innerText = "";
 }
 
+/**
+ * 
+ * @param {string} gameId string containing gameID for selected game
+ */
 function getGameJSON(gameId) {
     var season = games[0][8];
     var url = genUrl("game", season, gameId);
@@ -147,13 +152,16 @@ function updateScore() {
     getGameJSON(gameId);
 }
 
+/**
+ * Creates and adds the DOM elements for the formatted info
+ */
 function formatInfo() {
     var selected = document.getElementById("dropdown").value;
     var placeholder = document.getElementById("placeholder");
     var awayName = gameJSON.vls.tc + " " + gameJSON.vls.tn;
     var homeName = gameJSON.hls.tc + " " + gameJSON.hls.tn;
-    var awayLineScore = lineScore[ 2*selected ];
-    var homeLineScore = lineScore[ 2*selected+1 ];
+    var awayStats = gameJSON.vls;
+    var homeStats = gameJSON.hls;
 
     //create div to contain info elements
     var toUpdate = document.createElement("div");
@@ -172,12 +180,13 @@ function formatInfo() {
     if ( gameJSON.stt === "Final" ) {
         text = document.createTextNode("Final");
     } else {
-        text = document.createTextNode(gameJSON.stt + "\xa0\xa0" + gameJSON.cl);
+        var clock = gameJSON.cl.replace(/^0+/, '');
+        text = document.createTextNode(gameJSON.stt + "\xa0\xa0" + clock);
     }
     period.appendChild(text);
     toUpdate.appendChild(period);
 
-    var quarterTable = genQuarterTable( selected, awayLineScore, homeLineScore );
+    var quarterTable = genQuarterTable( awayStats, homeStats );
     toUpdate.appendChild(quarterTable);
 
     var recordsHeader = document.createElement("h3");
@@ -221,8 +230,8 @@ function formatScoreText(left, right) {
     return [leftElement, center, rightElement];
 }
 
-function genQuarterTable(game, away, home) {
-    var currentQuarter = games[game][9];
+function genQuarterTable(awayStats, homeStats) {
+    var currentQuarter = gameJSON.p;
     var tbl = document.createElement("table");
     var tblHead = document.createElement("thead");
     var tblBody = document.createElement("tbody");
@@ -241,8 +250,8 @@ function genQuarterTable(game, away, home) {
     header += "</tr>";
     tblHead.innerHTML = header;
 
-    var awayRow = quarterTableHelper( away, currentQuarter );
-    var homeRow = quarterTableHelper( home, currentQuarter );
+    var awayRow = quarterTableHelper( awayStats, currentQuarter );
+    var homeRow = quarterTableHelper( homeStats, currentQuarter );
     tblBody.appendChild(awayRow);
     tblBody.appendChild(homeRow);
     tbl.appendChild(tblHead);
@@ -251,20 +260,22 @@ function genQuarterTable(game, away, home) {
     return tbl;
 }
 
-function quarterTableHelper(team, quarters) {
+function quarterTableHelper(team, quarter) {
     var row = document.createElement("tr");
     var cell = document.createElement("td");
-    var cellText = document.createTextNode(team[4]);
+    var cellText = document.createTextNode(team.ta);
 
     cell.appendChild(cellText);
     row.appendChild(cell);
 
-    var counter = 4;
-    if ( quarters > 4 ) counter = quarters;
-    for ( var i = 0; i < counter; i++ ) {
+    var counter = 4; // make 4 cells at min
+    if ( quarter > 4 ) counter = quarter;
+    for ( var i = 1; i <= counter; i++ ) {
         cell = document.createElement("td");
-        if ( i < quarters ) {
-            cellText = document.createTextNode(team[7 + i]);
+        if ( i < 5 && i <= quarter ) {
+            cellText = document.createTextNode( team[ "q" + i ] );
+        } else if ( i > 4 ) {
+            cellText = document.createTextNode( team[ "ot" + (i-4) ] );
         } else { // if quarter hasn't been played yet
             cellText = document.createTextNode("-");
         }
@@ -273,6 +284,7 @@ function quarterTableHelper(team, quarters) {
     }
     return row;
 }
+
 /**
  * generate team records info, fix if server returns data in opposite order
  * @param {number} game - index for selected game
