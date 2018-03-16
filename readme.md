@@ -1,6 +1,6 @@
 README.md
 
-#SlimScore
+# SlimScore
 
 ## get today's nba box scores
 
@@ -11,7 +11,7 @@ A lightweight Google Chrome extension application to view live NBA scores
 * view nba-api-info.txt at https://github.com/changa0/boxscores for information regarding nba stats API
 * install by loading through chrome extensions dev mode
 
-version info
+#### Version Info
 
 v0.5 - supports basic live score info, no full box score in this version
 
