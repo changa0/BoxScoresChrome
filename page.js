@@ -293,28 +293,47 @@ function genBox(team , teamName) {
     var label = document.createElement("h2");
     label.appendChild( document.createTextNode(teamName) );
     div.appendChild(label);
+    var inactive = [];
 
     var tbl = document.createElement("table");
     var tblHead = document.createElement("thead");
     var tblBody = document.createElement("tbody");
-    var headData = [ "Player", "Min", "FG", "3Pt", "FT", "Pts", "Reb", "OReb", "DReb", "Ast", "Blk", "Stl", "TO", "PF" ];
+    var headData = [ "", "Pos", "Min", "FG", "3Pt", "FT", "Pts", "Reb", "Off", "Def", "Ast", "Blk", "Stl", "TO", "BA", "PF", "+/-" ];
     var header = rowHelper(headData, "th");
     tblHead.appendChild(header);
 
     for (var p of boxData) {
         var name = p.fn + " " + p.ln;
+        if ( p.status === "I" ) {
+            inactive.push(name);
+            continue;
+        }
         var time = p.min + ":" + (function(s) {if (s < 10) s = "0" + s; return s;})(p.sec);
         var fg = p.fgm + "-" + p.fga;
         var tp = p.tpm + "-" + p.tpa;
         var ft = p.ftm + "-" + p.fta;
-        var rowData = [ name, time, fg, tp, ft, p.pts, p.reb, p.oreb, p.dreb, p.ast, p.blk, p.stl, p.tov, p.pf];
+        var rowData = [ name, p.pos, time, fg, tp, ft, p.pts, p.reb, p.oreb, p.dreb, p.ast, p.blk, p.stl, p.tov, p.blka, p.pf, p.pm];
         var row = rowHelper(rowData, "td");
+        if ( p.court === 1 ) row.setAttribute("class", "on-court");
         tbl.appendChild(row);
     }
-
     tbl.appendChild(tblHead);
     tbl.setAttribute("class", "box-table");
     div.appendChild(tbl);
+
+    var text = "Inactive: ";
+    for ( var i = 0; i < inactive.length; i++ ) {
+        if ( i < inactive.length - 1) {
+            text += inactive[i] + ", ";
+        } else {
+            text += inactive[i] + ". ";
+        }
+    }
+    var key = "\xa0\xa0\xa0\xa0\xa0 Off: Offensive reb \xa0 Def: Defensive reb \xa0 BA: Blocked shot attempts";
+    text += key;
+    var extra = document.createElement("h4");
+    extra.appendChild( document.createTextNode(text) );
+    div.appendChild(extra);
     return div;
 }
 
@@ -384,7 +403,7 @@ function inactiveGame(awayName, homeName, game) {
     gameTime.appendChild( document.createTextNode( games[game][4] ) );
     toUpdate.appendChild(gameTime);
 
-    var recordsHeader = document.createElement("h3");
+    var recordsHeader = document.createElement("h2");
     recordsHeader.appendChild( document.createTextNode("Team Records") );
     if ( lastMeeting[game][11] === lineScore[2*game][4] ) { // check team match
         var records = genRecords(game, 0);

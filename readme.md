@@ -12,4 +12,7 @@ A lightweight Google Chrome extension application to view live NBA scores
 * install by loading through chrome extensions dev mode
 
 version info
+
 v0.5 - supports basic live score info, no full box score in this version
+
+v0.9 - full box score functionality

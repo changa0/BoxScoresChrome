@@ -14,6 +14,7 @@ body {
 h1 {
     margin-top: 0.5rem;
     margin-bottom: 0.5rem;
+    font-size: 1.7rem;
 }
 
 h3 {
@@ -105,7 +106,7 @@ table {
 }
 
 #quarter-table {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
 }
 
 #quarter-table th,
@@ -146,6 +147,10 @@ table {
 
 .box-table > tr:hover {
     background-color: #F3F3AF;
+}
+
+.on-court {
+    font-weight: bold;
 }
 
 #record-table {
