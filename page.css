@@ -115,7 +115,7 @@ table {
 }
 
 .box-area {
-    padding-top: 1.5rem;
+    padding-top: 0.5rem;
 }
 
 .box-area h2 {
@@ -141,11 +141,11 @@ table {
 }
 
 .box-table th,
-.box-table > tr:nth-child(even) {
+.box-table tr:nth-child(even) {
     background-color: #CECECE;
 }
 
-.box-table > tr:hover {
+.box-table > tbody > tr:hover {
     background-color: #F3F3AF;
 }
 
@@ -203,4 +203,24 @@ footer {
 @keyframes blink {
     from {color: red;}
     to {color: transparent;}
+}
+
+.tooltippable span {
+    visibility: hidden;
+    color: #F7FFCF;
+    background-color: black;
+    width: 190px;
+    padding: 2px 5px;
+    border-radius: 5px;
+    position: absolute;
+    top: 23%;
+    right: 11%;
+    z-index: 1;
+    opacity: 0;
+    transition: opacity 500ms;
+}
+
+.tooltippable:hover span {
+    visibility: visible;
+    opacity: 1;
 }

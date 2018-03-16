@@ -190,7 +190,7 @@ function formatInfo() {
     toUpdate.appendChild(quarterTable);
 
     var awayBox = genBox(awayStats, awayName);
-    var homeBox = genBox(homeStats, homeName)
+    var homeBox = genBox(homeStats, homeName);
     toUpdate.appendChild(awayBox);
     toUpdate.appendChild(homeBox);
 
@@ -301,6 +301,11 @@ function genBox(team , teamName) {
     var headData = [ "", "Pos", "Min", "FG", "3Pt", "FT", "Pts", "Reb", "Off", "Def", "Ast", "Blk", "Stl", "TO", "BA", "PF", "+/-" ];
     var header = rowHelper(headData, "th");
     tblHead.appendChild(header);
+    var key = "Off: Offensive rebounds<br>Def: Defensive rebounds<br>BA: Blocked shot attempts";
+    var tooltip = document.createElement("span");
+    tooltip.innerHTML = key;
+    tblHead.setAttribute("class", "tooltippable");
+    tblHead.appendChild(tooltip);
 
     for (var p of boxData) {
         var name = p.fn + " " + p.ln;
@@ -315,25 +320,25 @@ function genBox(team , teamName) {
         var rowData = [ name, p.pos, time, fg, tp, ft, p.pts, p.reb, p.oreb, p.dreb, p.ast, p.blk, p.stl, p.tov, p.blka, p.pf, p.pm];
         var row = rowHelper(rowData, "td");
         if ( p.court === 1 ) row.setAttribute("class", "on-court");
-        tbl.appendChild(row);
+        tblBody.appendChild(row);
     }
     tbl.appendChild(tblHead);
+    tbl.appendChild(tblBody);
     tbl.setAttribute("class", "box-table");
     div.appendChild(tbl);
 
     var text = "Inactive: ";
     for ( var i = 0; i < inactive.length; i++ ) {
         if ( i < inactive.length - 1) {
-            text += inactive[i] + ", ";
+            text += inactive[i] + " | ";
         } else {
-            text += inactive[i] + ". ";
+            text += inactive[i];
         }
     }
-    var key = "\xa0\xa0\xa0\xa0\xa0 Off: Offensive reb \xa0 Def: Defensive reb \xa0 BA: Blocked shot attempts";
-    text += key;
     var extra = document.createElement("h4");
     extra.appendChild( document.createTextNode(text) );
     div.appendChild(extra);
+
     return div;
 }
 
