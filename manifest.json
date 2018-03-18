@@ -3,7 +3,7 @@
 
     "name": "SlimScore",
     "description": "View live NBA box scores",
-    "version": "0.9",
+    "version": "0.9.1",
     
     "browser_action": {
         "default_icon": "icon.png"
